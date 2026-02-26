@@ -1,0 +1,236 @@
+CRM для IT-компании (например, управление проектами и задачами)
+Сущности и связи:
+
+Client — клиенты
+
+Project — проекты (принадлежат клиенту)
+
+Task — задачи (принадлежат проекту, имеют исполнителя)
+
+User — сотрудники (менеджеры, разработчики)
+
+TimeEntry — списание времени по задачам
+
+Invoice — счета (создаются на основе проектов)
+
+Сложные связи:
+
+Полиморфные теги / комментарии
+
+Многие ко многим (сотрудники могут работать на нескольких проектах)
+
+Вложенные ресурсы (Project → Tasks через RelationManager)
+
+Триггеры/события:
+
+При закрытии задачи → проверяется, все ли часы списаны
+
+При завершении всех задач проекта → проект автоматически закрывается
+
+WebSockets:
+
+Новая задача → уведомление исполнителю в реальном времени
+
+Вложенные запросы:
+
+Дашборд с суммой часов по проектам, загрузкой сотрудников   - да вот такое хочу сделать мечта
+
+crm/
+├── app/
+│   ├── Models/
+│   │   ├── Client.php
+│   │   ├── Project.php
+│   │   ├── Task.php
+│   │   ├── User.php
+│   │   ├── TimeEntry.php
+│   │   ├── Invoice.php
+│   │   ├── Tag.php (полиморфный)
+│   │   └── Comment.php (полиморфный)
+│   ├── Filament/
+│   │   ├── Resources/
+│   │   │   ├── ClientResource.php
+│   │   │   ├── ProjectResource.php
+│   │   │   ├── TaskResource.php
+│   │   │   ├── UserResource.php
+│   │   │   ├── TimeEntryResource.php
+│   │   │   └── InvoiceResource.php
+│   │   └── Widgets/
+│   │       ├── ProjectsOverview.php
+│   │       ├── TasksChart.php
+│   │       └── RecentActivities.php
+│   ├── Events/
+│   │   ├── TaskAssigned.php
+│   │   └── ProjectCompleted.php
+│   ├── Listeners/
+│   │   └── SendTaskNotification.php
+│   └── Console/
+│       └── Commands/
+│           └── GenerateInvoices.php
+
+
+
+crm/
+├── backend/
+│     ├── app/
+│       ├── Filament/
+│           ├── Widgets/
+│               ├── ProjectStats.php
+│               ├── TasksChart.php
+│               ├── HoursPerProject.php
+│               ├── RecentTasks.php
+│           ├── Resources/
+│               ├── ClientResource.php
+│               ├── ProjectResource.php
+│               ├── TaskResource.php
+│               ├── TimeEntryResource.php
+│               ├── InvoiceResource.php
+│               ├── UserResource.php
+│               ├── UserResource
+│                   ├── Pages
+│                       ├──CreateUser.php 
+│                       ├──EditUser.php 
+│                       ├──ListUser.php 
+│               ├── ClientResource
+│                   ├── RelationManager
+│                       ├── ProjectsRelationManager.php
+│                   ├── Pages
+│                       ├──CreateClient.php 
+│                       ├──EditClient.php 
+│                       ├──ListClient.php 
+│               ├── ProjectResource
+│                   ├── Pages
+│                       ├──CreateProject.php 
+│                       ├──EditProject.php 
+│                       ├──ListProject.php 
+│               ├── TaskResource
+│                   ├── RelationManager
+│                       ├── TimeEntriesRelationManager.php
+│                   ├── Pages
+│                       ├──CreateTask.php 
+│                       ├──EditTask.php 
+│                       ├──ListTask.php 
+│               ├── TimeEntryResource
+│                   ├── Pages
+│                       ├──CreateTimeEntry.php 
+│                       ├──EditTimeEntry.php 
+│                       ├──ListTimeEntry.php 
+│               ├── InvoiceResource
+│                   ├── Pages
+│                       ├──CreateInvoice.php 
+│                       ├──EditInvoice.php 
+│                       ├──ListInvoice.php 
+│       ├── Http/
+│       ├── Models/
+│           ├── User.php
+│           ├── Project.php
+│           ├── Task.php
+│           ├── Client.php
+│           ├── TimeEntry.php
+│           ├── Invoice.php
+│       ├── Providers/
+│           ├── Filament/
+│           ├── AppServiceProvider.php
+│     ├── bootstrap
+│     ├── config
+│     ├── database
+│       ├── seeders
+│           ├── AdminUserSeeder.php
+│     ├── public
+│     ├── resources
+│     ├── routes
+│     ├── storage
+│     ├── tests
+│     ├── vendor
+│     ├── .editorconfig
+│     ├── .env
+│     ├── .env.example
+│     ├── .gitattributes
+│     ├── .gitignore
+│     ├── artisan
+│     ├── composer.json
+│     ├── composer.lock
+│     ├── package.json
+│     ├── phpunit.xml
+│     ├── README.md
+│     ├── vite.config.js
+│     └──Dockerfile
+├── frontend/
+├── docker/
+│      └── ngnix/
+│           └── default.conf
+│      └── postgres/
+├────docker-compose.yml 
+
+
+Логика связей для CRM:
+text
+Client (1) —— (m) Project
+Project (1) —— (m) Task
+Task (1) —— (m) TimeEntry
+User (1) —— (m) Task (как исполнитель)
+Project (1) —— (1) Invoice
+
+clients → projects (один ко многим)
+
+projects → tasks (один ко многим)
+
+tasks → time_entries (один ко многим)
+
+projects → invoices (один к одному)
+
+users → tasks (как исполнитель)
+
+docker exec -it crm_backend bash
+php artisan make:filament-user
+php artisan make:filament-resource Project
+php artisan make:filament-resource Task
+php artisan make:filament-resource TimeEntry
+php artisan make:filament-resource Invoice
+php artisan make:filament-resource Client
+
+
+php artisan make:model Project -m
+php artisan make:model Task -m
+php artisan make:model TimeEntry -m
+php artisan make:model Invoice -m
+php artisan make:model Client -m
+
+php artisan migrate
+php artisan migrate:fresh
+
+php artisan make:seeder AdminUserSeeder
+php artisan db:seed
+
+Email: admin@crm.local
+Password: 123
+
+php artisan tinker
+App\Models\Project::all();
+
+
+
+⏳ Осталось:
+1️⃣ Инвойсы (Invoices) — нужно доделать
+Связь: Project → Invoice (один к одному)
+
+2️⃣ Дашборд со сложными запросами (то, что просил проверяющий)
+Нужно сделать виджеты:
+
+Сумма часов по проектам
+
+Загрузка сотрудников
+
+Завершенные vs активные проекты
+
+3️⃣ Триггер/событие (автоматическое создание инвойса при завершении проекта)
+4️⃣ WebSockets (уведомления о новых задачах)
+
+
+1️⃣ Аналитический дашборд (цифры, графики) — для проверяющего
+php artisan make:filament-widget ProjectStats --stats-overview --panel=admin
+php artisan make:filament-widget TasksChart --chart --panel=admin
+php artisan make:filament-widget HoursPerProject --chart --panel=admin
+php artisan make:filament-widget RecentTasks --table --panel=admin
+2️⃣ Канбан доска (перетаскивание задач) — для удобства
+3️⃣ Комментарии + теги — для битрикс-стайла
+   INFO  Make sure to register the widget in `ProjectStatsResource::getWidgets()`, and then again in `getHeaderWidgets()` or `getFooterWidgets()` of any `ProjectStatsResource` page.
