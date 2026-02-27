@@ -135,4 +135,11 @@ class TaskResource extends Resource
             'edit' => Pages\EditTask::route('/{record}/edit'),
         ];
     }
+
+    protected function afterCreate($record): void
+{
+    if ($record->assignee_id) {
+        broadcast(new \App\Events\TaskAssigned($record));
+    }
+}
 }

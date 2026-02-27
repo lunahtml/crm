@@ -72,6 +72,8 @@ crm/
 crm/
 ├── backend/
 │     ├── app/
+│       ├── Events/
+│           ├── TaskAssigned.php
 │       ├── Filament/
 │           ├── Widgets/
 │               ├── ProjectStats.php
@@ -132,12 +134,28 @@ crm/
 │           ├── AppServiceProvider.php
 │     ├── bootstrap
 │     ├── config
+│       ├── broadcasting.php
+│       ├── reverb.php
+│       ├── oterfiles
 │     ├── database
 │       ├── seeders
 │           ├── AdminUserSeeder.php
 │     ├── public
 │     ├── resources
+│       ├── views
+│           ├── vendor
+│               ├── filament
+│                   ├── components
+│                       ├── layout.blade.php
+│           ├── layouts
+│               ├── app.blade.php
+│       ├── js
+│           ├── echo.js listener WebSockets
+│           ├── oterfiles
 │     ├── routes
+│       ├── channels.php
+│       ├── console.php
+│       ├── web.php
 │     ├── storage
 │     ├── tests
 │     ├── vendor
@@ -161,6 +179,9 @@ crm/
 │      └── postgres/
 ├────docker-compose.yml 
 
+php artisan reverb:start
+
+docker exec -it crm_backend php artisan optimize:clear
 
 Логика связей для CRM:
 text
@@ -223,7 +244,7 @@ App\Models\Project::all();
 Завершенные vs активные проекты
 
 3️⃣ Триггер/событие (автоматическое создание инвойса при завершении проекта)
-4️⃣ WebSockets (уведомления о новых задачах)
+4️⃣ WebSockets (уведомления о новых задачах) php artisan reverb:start
 
 
 1️⃣ Аналитический дашборд (цифры, графики) — для проверяющего
