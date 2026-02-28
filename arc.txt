@@ -153,6 +153,7 @@ crm/
 │           ├── echo.js listener WebSockets
 │           ├── oterfiles
 │     ├── routes
+│       ├── api.php
 │       ├── channels.php
 │       ├── console.php
 │       ├── web.php
@@ -178,6 +179,7 @@ crm/
 │           └── default.conf
 │      └── postgres/
 ├────docker-compose.yml 
+
 
 php artisan reverb:start
 
@@ -234,7 +236,7 @@ App\Models\Project::all();
 1️⃣ Инвойсы (Invoices) — нужно доделать
 Связь: Project → Invoice (один к одному)
 
-2️⃣ Дашборд со сложными запросами (то, что просил проверяющий)
+2️⃣ Дашборд со сложными запросами
 Нужно сделать виджеты:
 
 Сумма часов по проектам
