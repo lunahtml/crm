@@ -57,6 +57,17 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                'panels::body.end',
+                fn () => <<<HTML
+                <div id="filament-user-id" data-id="{{ auth()->id() ?? 0 }}" style="display: none;"></div>
+                <script>
+                    window.Laravel = window.Laravel || {};
+                    window.Laravel.userId = parseInt(document.querySelector('#filament-user-id')?.dataset.id || '0');
+                    console.log('UserId из data-id:', window.Laravel.userId);
+                </script>
+            HTML
+            );
     }
 }

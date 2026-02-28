@@ -29,7 +29,12 @@ return [
     */
 
     'connections' => [
-
+'centrifugo' => [
+        'driver' => 'centrifugo',
+        'url' => env('CENTRIFUGO_ADDRESS', 'http://localhost:8002'),
+        'api_key' => env('CENTRIFUGO_API_KEY'),
+        'secret' => env('CENTRIFUGO_SECRET'),
+    ],
         'reverb' => [
             'driver' => 'reverb',
             'key' => env('REVERB_APP_KEY'),
