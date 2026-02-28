@@ -1,7 +1,11 @@
 //backend/resources/js/app.js
 import './bootstrap';
 import './echo';
-
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.initializeEcho === 'function') {
+        window.initializeEcho();
+    }
+});
 console.log('app.js loaded, window.Laravel.userId =', window.Laravel?.userId);
 
 // Проверяем CSRF токен

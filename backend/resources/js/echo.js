@@ -1,57 +1,58 @@
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
 console.log('echo.js loaded - API mode');
 
-fetch('/api/current-user', {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-    }
-})
-    .then(res => {
-        console.log('API status:', res.status); // ← добавили дебаг
-        if (!res.ok) {
-            throw new Error('API not ok: ' + res.status);
-        }
-        return res.json();
-    })
-    .then(data => {
-        console.log('API data:', data); // ← добавили дебаг всего ответа
-        if (data && data.id) {
-            window.Laravel = window.Laravel || {};
-            window.Laravel.userId = data.id;
-            console.log('UserId из API:', window.Laravel.userId);
+window.initializeEcho = async function () {
+    try {
+        const res = await fetch('/api/current-user', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
 
+        console.log('API status:', res.status);
+
+        if (!res.ok) throw new Error(`API not ok: ${res.status}`);
+
+        const data = await res.json();
+        console.log('API data:', data);
+
+        const userId = Number(data?.id || 0);
+        window.Laravel = window.Laravel || {};
+        window.Laravel.userId = userId;
+
+        console.log('UserId из API:', window.Laravel.userId);
+
+        if (userId > 0) {
             window.Echo = new Echo({
-                broadcaster: 'reverb',
-                key: import.meta.env.VITE_REVERB_APP_KEY,
-                wsHost: import.meta.env.VITE_REVERB_HOST,
-                wsPort: import.meta.env.VITE_REVERB_PORT,
-                forceTLS: false,
-                enabledTransports: ['ws'],
+                broadcaster: 'pusher',
+                key: import.meta.env.VITE_PUSHER_APP_KEY,
+                cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+                forceTLS: true,
                 auth: {
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
                     }
                 }
             });
 
             console.log('Echo создан');
 
-            window.Echo.private(`user.${data.id}`)
-                .listen('.task.assigned', (e) => {
+            window.Echo.private(`user.${userId}`)
+                .listen('.task.assigned', e => {
                     console.log('✅ New task assigned:', e);
-                    if (Notification.permission === 'granted') {
-                        new Notification('Новая задача!', {
-                            body: `${e.title} в проекте ${e.project || '—'}`,
-                            icon: '/favicon.ico'
-                        });
-                    }
                 });
         } else {
-            console.error('Нет userId в data:', data);
+            console.warn('❌ userId = 0, Echo не инициализирован');
         }
-    })
-    .catch(err => {
-        console.error('API error:', err.message);
-    });
+
+    } catch (err) {
+        console.error('API error:', err); // так будет видно реальное сообщение ошибки
+    }
+};
