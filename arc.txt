@@ -122,6 +122,10 @@ crm/
 │                       ├──EditInvoice.php 
 │                       ├──ListInvoice.php 
 │       ├── Http/
+│           ├── Controllers/
+│              ├── Controller.php
+│              ├── Api/
+│                 ├── BroadcastAuthController.php
 │       ├── Models/
 │           ├── User.php
 │           ├── Project.php
@@ -132,9 +136,13 @@ crm/
 │       ├── Providers/
 │           ├── Filament/
 │           ├── AppServiceProvider.php
+│           ├── BroadcastServiceProvider.php
 │     ├── bootstrap
 │     ├── config
 │       ├── broadcasting.php
+│       ├── app.php
+│       ├── auth.php
+│       ├── sanctum.php
 │       ├── reverb.php
 │       ├── oterfiles
 │     ├── database

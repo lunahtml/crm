@@ -36,8 +36,11 @@ services:
       DB_DATABASE: crm_db
       DB_USERNAME: crm_user
       DB_PASSWORD: crm_password
-      REVERB_HOST: 0.0.0.0
-      REVERB_PORT: 8080
+      PHP_FPM_PM: dynamic
+      PHP_FPM_PM_MAX_CHILDREN: 30
+      PHP_FPM_PM_START_SERVERS: 10
+      PHP_FPM_PM_MIN_SPARE_SERVERS: 5
+      PHP_FPM_PM_MAX_SPARE_SERVERS: 20
     expose:
       - "9000"
       - "8080"
@@ -45,8 +48,7 @@ services:
       sh -c "
         php artisan migrate --force &&
         php artisan db:seed --class=AdminUserSeeder &&
-        php artisan reverb:start --host=0.0.0.0 --port=8080 --no-interaction & 
-        php-fpm
+        php-fpm -F -c /usr/local/etc/php-fpm.conf.d/www.conf
       "
     networks:
       - crm_network
