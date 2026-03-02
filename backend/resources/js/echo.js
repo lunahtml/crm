@@ -1,7 +1,4 @@
 import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
-
-window.Pusher = Pusher;
 
 async function initEcho() {
     try {
@@ -31,54 +28,36 @@ async function initEcho() {
             return;
         }
 
-        console.log('User authenticated:', { userId, name: data.name, email: data.email });
-
-        window.Laravel = {
-            userId: userId,
-            user: data
-        };
+        window.Laravel = { userId };
 
         const echoInstance = new Echo({
-            broadcaster: 'pusher',
-            key: import.meta.env.VITE_PUSHER_APP_KEY,
-            cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-            wsHost: 'ws-eu.pusher.com',
-            wsPort: 443,
-            wssPort: 443,
-            forceTLS: true,
-            encrypted: true,
-            disableStats: true,
+            broadcaster: 'reverb',
+            key: import.meta.env.VITE_REVERB_APP_KEY,
+            wsHost: import.meta.env.VITE_REVERB_HOST,
+            wsPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
+            wssPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
+            forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
             enabledTransports: ['ws', 'wss'],
-            logToConsole: true,
 
-            // Важно: используем правильный эндпоинт
-            authEndpoint: '/broadcasting/auth', // или '/broadcasting/auth' без /api
-            // authEndpoint: '/api/broadcasting/auth', // если добавите /api позже
-
+            authEndpoint: '/broadcasting/auth',
             auth: {
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'Accept': 'application/json'
                 }
-            },
-
-            authCallback: (data, callback) => {
-                console.log('Auth response:', data);
-                callback(false, data);
             }
         });
 
         window.Echo = echoInstance;
 
-        echoInstance.connector.pusher.connection.bind('connected', () => {
-            console.log('✅ Connected to Pusher');
+        // Ждем подключения через событие Echo
+        echoInstance.connector.pusher.connection.bind('connected', function () {
+            console.log('✅ Connected to Reverb');
 
             const channel = echoInstance.private(`user.${userId}`);
 
             channel.listen('.task.assigned', (e) => {
-                console.log('📨 Task assigned event:', e);
-
+                console.log('📨 Task assigned:', e);
                 if (Notification.permission === 'granted') {
                     new Notification('Новая задача!', {
                         body: `${e.title}${e.project ? ` в проекте ${e.project}` : ''}`,
@@ -92,8 +71,8 @@ async function initEcho() {
             });
         });
 
-        echoInstance.connector.pusher.connection.bind('error', (error) => {
-            console.error('❌ Pusher connection error:', error);
+        echoInstance.connector.pusher.connection.bind('error', function (error) {
+            console.error('❌ Reverb connection error:', error);
         });
 
     } catch (e) {
@@ -101,12 +80,9 @@ async function initEcho() {
     }
 }
 
+// Запускаем после загрузки страницы
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initEcho);
 } else {
     initEcho();
 }
-
-// window.Echo.connector.pusher.connection.bind('message', (data) => {
-//     console.log('📨 Pusher message received:', data);
-// });

@@ -67,6 +67,31 @@ services:
     networks:
       - crm_network
 
+  # Добавляем Reverb сервис
+  reverb:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: crm_reverb
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - postgres
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8080:8080"
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: crm_db
+      DB_USERNAME: crm_user
+      DB_PASSWORD: crm_password
+    command: php artisan reverb:start
+    networks:
+      - crm_network
+
 volumes:
   postgres_data:
 

@@ -135,8 +135,12 @@ crm/
 │           ├── Invoice.php
 │       ├── Providers/
 │           ├── Filament/
+│              ├── AdminPanelProvider.php
+│           ├── AuthServiceProvider.php
 │           ├── AppServiceProvider.php
 │           ├── BroadcastServiceProvider.php
+│           ├── EventServiceProvider.php
+│           ├── RouteServiceProvider.php
 │     ├── bootstrap
 │     ├── config
 │       ├── broadcasting.php
@@ -192,7 +196,7 @@ crm/
 php artisan reverb:start
 
 docker exec -it crm_backend php artisan optimize:clear
-
+docker-compose logs -f reverb
 Логика связей для CRM:
 text
 Client (1) —— (m) Project
