@@ -17,6 +17,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Widgets\NotificationBell;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -43,6 +44,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\TasksChart::class,
                 \App\Filament\Widgets\HoursPerProject::class,
                 \App\Filament\Widgets\RecentTasks::class,
+                NotificationBell::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -66,6 +68,16 @@ class AdminPanelProvider extends PanelProvider
                     window.Laravel = window.Laravel || {};
                     window.Laravel.userId = parseInt(document.querySelector('#filament-user-id')?.dataset.id || '0');
                     console.log('UserId из data-id:', window.Laravel.userId);
+                </script>
+                <script>
+                    document.addEventListener('livewire:init', function () {
+                        if (window.Echo) {
+                            window.Echo.private(`user.{{ auth()->id() }}`)
+                                .listen('.task.assigned', (e) => {
+                                    Livewire.dispatch('notificationReceived');
+                                });
+                        }
+                    });
                 </script>
             HTML
             );

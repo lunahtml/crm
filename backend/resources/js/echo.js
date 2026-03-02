@@ -58,6 +58,13 @@ async function initEcho() {
 
             channel.listen('.task.assigned', (e) => {
                 console.log('📨 Task assigned:', e);
+
+                // Триггерим обновление Livewire компонентов
+                if (window.Livewire) {
+                    Livewire.dispatch('notificationReceived');
+                }
+
+                // Браузерное уведомление
                 if (Notification.permission === 'granted') {
                     new Notification('Новая задача!', {
                         body: `${e.title}${e.project ? ` в проекте ${e.project}` : ''}`,

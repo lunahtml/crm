@@ -3,13 +3,14 @@
 namespace App\Events;
 
 use App\Models\Task;
-use Illuminate\Broadcasting\Channel;
+use App\Models\Notification;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class TaskAssigned implements ShouldBroadcast
 {
@@ -21,24 +22,31 @@ class TaskAssigned implements ShouldBroadcast
     {
         $this->task = $task;
         
+        // Создаем запись в БД
+        $notification = Notification::create([
+            'id' => (string) Str::uuid(),
+            'type' => 'App\\Events\\TaskAssigned',
+            'notifiable_type' => 'App\\Models\\User',
+            'notifiable_id' => $task->assignee_id,
+            'data' => [
+                'task_id' => $task->id,
+                'title' => $task->title,
+                'project' => $task->project?->name,
+                'url' => "/admin/tasks/{$task->id}/edit"
+            ]
+        ]);
+        
         Log::info('TaskAssigned event created', [
             'task_id' => $task->id,
             'assignee_id' => $task->assignee_id,
-            'title' => $task->title
+            'notification_id' => $notification->id
         ]);
     }
 
     public function broadcastOn(): array
     {
-        $channel = 'user.' . $this->task->assignee_id;
-        
-        Log::info('TaskAssigned broadcasting on channel', [
-            'channel' => $channel,
-            'private_channel' => 'private-' . $channel
-        ]);
-        
         return [
-            new PrivateChannel($channel),
+            new PrivateChannel('user.' . $this->task->assignee_id),
         ];
     }
 
@@ -49,31 +57,12 @@ class TaskAssigned implements ShouldBroadcast
 
     public function broadcastWith(): array
     {
-        $data = [
+        return [
             'id' => $this->task->id,
             'title' => $this->task->title,
             'project' => $this->task->project?->name,
             'url' => '/admin/tasks/' . $this->task->id . '/edit',
-            'assigned_at' => now()->toDateTimeString(),
+            'assigned_at' => now()->toDateTimeString()
         ];
-        
-        Log::info('TaskAssigned broadcast data', $data);
-        
-        return $data;
-    }
-    
-    /**
-     * Determine if this event should broadcast.
-     */
-    public function broadcastWhen(): bool
-    {
-        $should = !is_null($this->task->assignee_id);
-        
-        Log::info('TaskAssigned broadcastWhen', [
-            'should_broadcast' => $should,
-            'assignee_id' => $this->task->assignee_id
-        ]);
-        
-        return $should;
     }
 }

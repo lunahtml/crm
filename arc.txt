@@ -33,41 +33,7 @@ WebSockets:
 
 Вложенные запросы:
 
-Дашборд с суммой часов по проектам, загрузкой сотрудников   - да вот такое хочу сделать мечта
-
-crm/
-├── app/
-│   ├── Models/
-│   │   ├── Client.php
-│   │   ├── Project.php
-│   │   ├── Task.php
-│   │   ├── User.php
-│   │   ├── TimeEntry.php
-│   │   ├── Invoice.php
-│   │   ├── Tag.php (полиморфный)
-│   │   └── Comment.php (полиморфный)
-│   ├── Filament/
-│   │   ├── Resources/
-│   │   │   ├── ClientResource.php
-│   │   │   ├── ProjectResource.php
-│   │   │   ├── TaskResource.php
-│   │   │   ├── UserResource.php
-│   │   │   ├── TimeEntryResource.php
-│   │   │   └── InvoiceResource.php
-│   │   └── Widgets/
-│   │       ├── ProjectsOverview.php
-│   │       ├── TasksChart.php
-│   │       └── RecentActivities.php
-│   ├── Events/
-│   │   ├── TaskAssigned.php
-│   │   └── ProjectCompleted.php
-│   ├── Listeners/
-│   │   └── SendTaskNotification.php
-│   └── Console/
-│       └── Commands/
-│           └── GenerateInvoices.php
-
-
+Дашборд с суммой часов по проектам, загрузкой сотрудников  
 
 crm/
 ├── backend/
@@ -77,6 +43,7 @@ crm/
 │       ├── Filament/
 │           ├── Widgets/
 │               ├── ProjectStats.php
+│               ├── NotificationBell.php
 │               ├── TasksChart.php
 │               ├── HoursPerProject.php
 │               ├── RecentTasks.php
@@ -129,6 +96,7 @@ crm/
 │       ├── Models/
 │           ├── User.php
 │           ├── Project.php
+│           ├── Notification.php
 │           ├── Task.php
 │           ├── Client.php
 │           ├── TimeEntry.php
@@ -155,6 +123,11 @@ crm/
 │     ├── public
 │     ├── resources
 │       ├── views
+│           ├── filament
+│              ├── hooks
+│                 ├── notification-script.blade.php
+│              ├── widgets
+│                 ├── notification-bell.blade.php
 │           ├── vendor
 │               ├── filament
 │                   ├── components
@@ -197,6 +170,8 @@ php artisan reverb:start
 
 docker exec -it crm_backend php artisan optimize:clear
 docker-compose logs -f reverb
+
+docker-compose exec backend php artisan queue:work
 Логика связей для CRM:
 text
 Client (1) —— (m) Project
@@ -223,6 +198,7 @@ php artisan make:filament-resource TimeEntry
 php artisan make:filament-resource Invoice
 php artisan make:filament-resource Client
 
+docker-compose exec backend php artisan make:migration create_notifications_table
 
 php artisan make:model Project -m
 php artisan make:model Task -m
@@ -248,24 +224,19 @@ App\Models\Project::all();
 1️⃣ Инвойсы (Invoices) — нужно доделать
 Связь: Project → Invoice (один к одному)
 
-2️⃣ Дашборд со сложными запросами
-Нужно сделать виджеты:
 
-Сумма часов по проектам
-
-Загрузка сотрудников
-
-Завершенные vs активные проекты
 
 3️⃣ Триггер/событие (автоматическое создание инвойса при завершении проекта)
-4️⃣ WebSockets (уведомления о новых задачах) php artisan reverb:start
+php artisan reverb:start
 
 
-1️⃣ Аналитический дашборд (цифры, графики) — для проверяющего
+1️⃣ Аналитический дашборд (цифры, графики) 
 php artisan make:filament-widget ProjectStats --stats-overview --panel=admin
 php artisan make:filament-widget TasksChart --chart --panel=admin
 php artisan make:filament-widget HoursPerProject --chart --panel=admin
 php artisan make:filament-widget RecentTasks --table --panel=admin
-2️⃣ Канбан доска (перетаскивание задач) — для удобства
+
+TO DO 2️⃣ Канбан доска (перетаскивание задач) — для удобства
+
 3️⃣ Комментарии + теги — для битрикс-стайла
    INFO  Make sure to register the widget in `ProjectStatsResource::getWidgets()`, and then again in `getHeaderWidgets()` or `getFooterWidgets()` of any `ProjectStatsResource` page.
