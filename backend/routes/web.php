@@ -37,3 +37,38 @@ Route::get('/debug-session', function () {
         'cookies' => request()->cookies->all()
     ]);
 })->middleware('web');
+
+
+Route::get('/test-pusher', function () {
+    try {
+        $pusher = new Pusher\Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            [
+                'cluster' => env('PUSHER_APP_CLUSTER'),
+                'useTLS' => true,
+                'host' => 'api-' . env('PUSHER_APP_CLUSTER') . '.pusher.com',
+                'port' => 443,
+            ]
+        );
+        
+        $result = $pusher->trigger('test-channel', 'test-event', ['message' => 'Hello from Laravel!']);
+        
+        Log::info('Pusher test result', ['result' => $result]);
+        
+        return response()->json([
+            'success' => $result,
+            'message' => 'Pusher test completed'
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Pusher test failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});

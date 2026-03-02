@@ -107,6 +107,6 @@ if (document.readyState === 'loading') {
     initEcho();
 }
 
-window.Echo.connector.pusher.connection.bind('message', (data) => {
-    console.log('📨 Pusher message received:', data);
-});
+// window.Echo.connector.pusher.connection.bind('message', (data) => {
+//     console.log('📨 Pusher message received:', data);
+// });

@@ -136,10 +136,10 @@ class TaskResource extends Resource
         ];
     }
 
-    protected function afterCreate($record): void
-{
-    if ($record->assignee_id) {
-        broadcast(new \App\Events\TaskAssigned($record));
-    }
-}
+//     protected function afterCreate($record): void
+// {
+//     if ($record->assignee_id) {
+//         broadcast(new \App\Events\TaskAssigned($record));
+//     }
+// }
 }
