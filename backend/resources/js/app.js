@@ -17,3 +17,4 @@ console.log('User info:', {
     name: window.Laravel.userName,
     email: window.Laravel.userEmail,
 });
+// Kanban drag and drop is handled in Alpine component

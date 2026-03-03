@@ -27,4 +27,13 @@ class CreateTask extends CreateRecord
             event(new TaskAssigned($task));
         }
     }
+    protected function getRedirectUrl(): string
+{
+    // Если пришли с канбана, вернуться обратно
+    if (request()->has('project_id')) {
+        return route('filament.admin.pages.kanban-board');
+    }
+    
+    return $this->getResource()::getUrl('index');
+}
 }

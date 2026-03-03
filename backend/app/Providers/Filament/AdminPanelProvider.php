@@ -45,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\HoursPerProject::class,
                 \App\Filament\Widgets\RecentTasks::class,
                 NotificationBell::class,
+                // \App\Filament\Widgets\ProjectKanban::class,
             ])
             ->middleware([
                 EncryptCookies::class,

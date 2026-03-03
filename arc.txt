@@ -41,7 +41,10 @@ crm/
 │       ├── Events/
 │           ├── TaskAssigned.php
 │       ├── Filament/
+│           ├── Pages/
+│              ├── KanbanBoard.php
 │           ├── Widgets/
+│               ├── ProjectKanban.php
 │               ├── ProjectStats.php
 │               ├── NotificationBell.php
 │               ├── TasksChart.php
@@ -124,10 +127,13 @@ crm/
 │     ├── resources
 │       ├── views
 │           ├── filament
+│              ├── pages
+│                 ├── kanban-board.blade.php
 │              ├── hooks
 │                 ├── notification-script.blade.php
 │              ├── widgets
 │                 ├── notification-bell.blade.php
+│                 ├── project-kanban.blade.php
 │           ├── vendor
 │               ├── filament
 │                   ├── components
