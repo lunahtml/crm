@@ -1,4 +1,36 @@
 <x-filament-panels::page>
+    <style>
+        /* Принудительные стили для канбана */
+        .kanban-container {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 1rem !important;
+        }
+        
+        @media (max-width: 768px) {
+            .kanban-container {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        [draggable=true] {
+            user-select: none;
+            -webkit-user-drag: element;
+        }
+        
+        [draggable=true]:active {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        
+        .bg-gray-50 [draggable=true]:hover,
+        .bg-yellow-50 [draggable=true]:hover,
+        .bg-blue-50 [draggable=true]:hover,
+        .bg-green-50 [draggable=true]:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+
     <div class="space-y-6" x-data="kanbanBoard()" x-init="init($wire)">
         <!-- Header с выбором проекта -->
         <div class="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm">
@@ -6,15 +38,15 @@
                 <h2 class="text-xl font-bold text-gray-800">Kanban доска</h2>
                 
                 <div class="w-72">
-                    <select 
-                        wire:model.live="selectedProject" 
-                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                    >
-                        <option value="">Выберите проект</option>
-                        @foreach($this->getProjects() as $project)
-                            <option value="{{ $project->id }}">{{ $project->name }}</option>
-                        @endforeach
-                    </select>
+                <select 
+    wire:model.live="selectedProject" 
+    class="block w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+>
+    <option value="" class="text-gray-500">Выберите проект</option>
+    @foreach($this->getProjects() as $project)
+        <option value="{{ $project->id }}" class="text-gray-900">{{ $project->name }}</option>
+    @endforeach
+</select>
                 </div>
             </div>
             
@@ -33,7 +65,7 @@
 
         @if($selectedProject)
             <!-- Колонки канбана -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 min-h-[600px]">
+            <div class="kanban-container min-h-[600px]">
                 
                 <!-- To Do -->
                 <div class="bg-gray-50 rounded-xl p-4">
