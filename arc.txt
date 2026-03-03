@@ -175,6 +175,8 @@ crm/
 │     └──Dockerfile
 ├── frontend/
 ├── docker/
+│      └── php-fpm/
+│           └── www.conf
 │      └── ngnix/
 │           └── default.conf
 │      └── postgres/
