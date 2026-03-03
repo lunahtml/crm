@@ -8,6 +8,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class TasksRelationManager extends RelationManager
 {
@@ -76,8 +77,6 @@ class TasksRelationManager extends RelationManager
                         'review' => 'Review',
                         'completed' => 'Completed',
                     ]),
-                Tables\Filters\SelectFilter::make('assignee')
-                    ->relationship('assignee', 'name'),
             ])
             ->headerActions([
                 // Создать новую задачу
@@ -89,33 +88,58 @@ class TasksRelationManager extends RelationManager
                         return $data;
                     }),
                 
-                // Прикрепить существующую задачу
-                Tables\Actions\AttachAction::make()
-                    ->label('Добавить существующую')
+                // Кастомное действие для добавления существующих задач
+                Tables\Actions\Action::make('attachTasks')
+                    ->label('Добавить существующие задачи')
                     ->icon('heroicon-o-link')
-                    ->preloadRecordSelect()
-                    ->recordSelectOptionsQuery(function (Builder $query) {
-                        return $query
-                            ->where('project_id', $this->getOwnerRecord()->project_id)
-                            ->whereNull('epic_id')
-                            ->orWhere('epic_id', $this->getOwnerRecord()->id);
-                    })
-                    ->recordSelectSearchColumns(['title'])
-                    ->mutateFormDataUsing(function (array $data): array {
-                        $data['project_id'] = $this->getOwnerRecord()->project_id;
-                        return $data;
+                    ->form([
+                        Forms\Components\Select::make('task_ids')
+                            ->label('Выберите задачи')
+                            ->multiple()
+                            ->options(function () {
+                                $projectId = $this->getOwnerRecord()->project_id;
+                                $epicId = $this->getOwnerRecord()->id;
+                                
+                                return \App\Models\Task::where('project_id', $projectId)
+                                    ->where(function ($query) use ($epicId) {
+                                        $query->whereNull('epic_id')
+                                              ->orWhere('epic_id', $epicId);
+                                    })
+                                    ->pluck('title', 'id')
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                    ])
+                    ->action(function (array $data): void {
+                        $epic = $this->getOwnerRecord();
+                        \App\Models\Task::whereIn('id', $data['task_ids'])
+                            ->update(['epic_id' => $epic->id]);
                     }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make() // Открепить от эпика
-                    ->label('Убрать из эпика'),
+                Tables\Actions\Action::make('detach')
+                    ->label('Убрать из эпика')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->action(function (Model $record): void {
+                        $record->update(['epic_id' => null]);
+                    }),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make()
-                        ->label('Убрать из эпика'),
+                    Tables\Actions\BulkAction::make('detach')
+                        ->label('Убрать из эпика')
+                        ->icon('heroicon-o-x-mark')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records): void {
+                            $records->each->update(['epic_id' => null]);
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
