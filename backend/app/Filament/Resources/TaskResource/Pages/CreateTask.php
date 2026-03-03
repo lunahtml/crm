@@ -12,6 +12,18 @@ class CreateTask extends CreateRecord
 {
     protected static string $resource = TaskResource::class;
     
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (request()->has('project_id')) {
+            $data['project_id'] = request()->get('project_id');
+        }
+        
+        if (request()->has('epic_id')) {
+            $data['epic_id'] = request()->get('epic_id');
+        }
+        
+        return $data;
+    }
     // Добавляем метод afterCreate
     protected function afterCreate(): void
     {

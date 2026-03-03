@@ -57,6 +57,14 @@ crm/
 │               ├── TimeEntryResource.php
 │               ├── InvoiceResource.php
 │               ├── UserResource.php
+│               ├── EpicResource.php
+│               ├── EpicResource
+│                   ├── RelationManagers
+│                       ├── TasksRelationManager.php
+│                   ├── Pages
+│                       ├──CreateEpic.php 
+│                       ├──EditEpic.php 
+│                       ├──ListEpic.php 
 │               ├── UserResource
 │                   ├── Pages
 │                       ├──CreateUser.php 
@@ -101,6 +109,7 @@ crm/
 │           ├── Project.php
 │           ├── Notification.php
 │           ├── Task.php
+│           ├── Epic.php
 │           ├── Client.php
 │           ├── TimeEntry.php
 │           ├── Invoice.php

@@ -29,6 +29,15 @@
         .bg-green-50 [draggable=true]:hover {
             transform: translateY(-2px);
         }
+        select, select option {
+    color: #1f2937 !important;
+    background-color: #ffffff !important;
+}
+
+select option:checked {
+    background-color: #e5e7eb !important;
+    color: #1f2937 !important;
+}
     </style>
 
     <div class="space-y-6" x-data="kanbanBoard()" x-init="init($wire)">
@@ -40,11 +49,12 @@
                 <div class="w-72">
                 <select 
     wire:model.live="selectedProject" 
-    class="block w-full rounded-lg border-gray-300 bg-white text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+    style="color: #1f2937; background-color: white;"
 >
-    <option value="" class="text-gray-500">Выберите проект</option>
+    <option value="" style="color: #6b7280;">Выберите проект</option>
     @foreach($this->getProjects() as $project)
-        <option value="{{ $project->id }}" class="text-gray-900">{{ $project->name }}</option>
+        <option value="{{ $project->id }}" style="color: #1f2937;">{{ $project->name }}</option>
     @endforeach
 </select>
                 </div>
@@ -90,11 +100,22 @@
                                  data-task-id="{{ $task['id'] }}"
                                  @click="openTask({{ $task['id'] }})">
                                 <h4 class="font-medium text-gray-800">{{ $task['title'] }}</h4>
+                                
                                 @if($task['description'] ?? null)
                                     <p class="text-xs text-gray-500 mt-2 line-clamp-2">{{ $task['description'] }}</p>
                                 @endif
+                                
+                                @if($task['epic'] ?? null)
+                                    <p class="text-xs text-indigo-600 mt-1 flex items-center">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                                        </svg>
+                                        {{ $task['epic']['name'] }}
+                                    </p>
+                                @endif
+                                
                                 @if($task['assignee'] ?? null)
-                                    <p class="text-xs text-gray-500 mt-2 flex items-center">
+                                    <p class="text-xs text-gray-500 mt-1 flex items-center">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linecap="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
@@ -129,11 +150,22 @@
                                  data-task-id="{{ $task['id'] }}"
                                  @click="openTask({{ $task['id'] }})">
                                 <h4 class="font-medium text-gray-800">{{ $task['title'] }}</h4>
+                                
                                 @if($task['description'] ?? null)
                                     <p class="text-xs text-gray-500 mt-2 line-clamp-2">{{ $task['description'] }}</p>
                                 @endif
+                                
+                                @if($task['epic'] ?? null)
+                                    <p class="text-xs text-indigo-600 mt-1 flex items-center">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                                        </svg>
+                                        {{ $task['epic']['name'] }}
+                                    </p>
+                                @endif
+                                
                                 @if($task['assignee'] ?? null)
-                                    <p class="text-xs text-gray-500 mt-2 flex items-center">
+                                    <p class="text-xs text-gray-500 mt-1 flex items-center">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linecap="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
@@ -168,8 +200,18 @@
                                  data-task-id="{{ $task['id'] }}"
                                  @click="openTask({{ $task['id'] }})">
                                 <h4 class="font-medium text-gray-800">{{ $task['title'] }}</h4>
+                                
                                 @if($task['description'] ?? null)
                                     <p class="text-xs text-gray-500 mt-2 line-clamp-2">{{ $task['description'] }}</p>
+                                @endif
+                                
+                                @if($task['epic'] ?? null)
+                                    <p class="text-xs text-indigo-600 mt-1 flex items-center">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                                        </svg>
+                                        {{ $task['epic']['name'] }}
+                                    </p>
                                 @endif
                             </div>
                         @endforeach
@@ -199,6 +241,15 @@
                                  data-task-id="{{ $task['id'] }}"
                                  @click="openTask({{ $task['id'] }})">
                                 <h4 class="font-medium text-gray-600 line-through">{{ $task['title'] }}</h4>
+                                
+                                @if($task['epic'] ?? null)
+                                    <p class="text-xs text-indigo-600 mt-1 flex items-center">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linecap="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                                        </svg>
+                                        {{ $task['epic']['name'] }}
+                                    </p>
+                                @endif
                             </div>
                         @endforeach
                     </div>

@@ -25,4 +25,8 @@ class Project extends Model
     {
         return $this->hasOne(Invoice::class);
     }
+    public function epics()
+{
+    return $this->hasMany(Epic::class)->orderBy('order');
+}
 }

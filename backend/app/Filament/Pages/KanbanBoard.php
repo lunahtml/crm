@@ -33,7 +33,7 @@ class KanbanBoard extends Page
     {
         if ($this->selectedProject) {
             $this->tasks = Task::where('project_id', $this->selectedProject)
-                ->with('assignee')
+                ->with(['assignee', 'epic'])
                 ->orderBy('status')
                 ->orderBy('updated_at', 'desc')
                 ->get()
@@ -43,6 +43,10 @@ class KanbanBoard extends Page
                         'title' => $task->title,
                         'description' => $task->description,
                         'status' => $task->status,
+                        'epic' => $task->epic ? [
+                            'id' => $task->epic->id,
+                            'name' => $task->epic->name
+                        ] : null,
                         'assignee' => $task->assignee ? [
                             'id' => $task->assignee->id,
                             'name' => $task->assignee->name

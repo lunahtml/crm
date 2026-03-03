@@ -33,19 +33,41 @@ class TaskResource extends Resource
                         TextInput::make('title')
                             ->required()
                             ->maxLength(255),
+                        
+                        // ИЗМЕНЕННЫЙ project_id с reactive и afterStateUpdated
                         Select::make('project_id')
                             ->relationship('project', 'name')
                             ->required()
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->reactive()
+                            ->afterStateUpdated(fn (callable $set) => $set('epic_id', null)),
+                        
+                        // НОВЫЙ epic_id
+                        Select::make('epic_id')
+                            ->label('Epic')
+                            ->options(function (callable $get) {
+                                $projectId = $get('project_id');
+                                if ($projectId) {
+                                    return \App\Models\Epic::where('project_id', $projectId)
+                                        ->pluck('name', 'id');
+                                }
+                                return [];
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->nullable(),
+                        
                         Select::make('assignee_id')
                             ->relationship('assignee', 'name')
                             ->searchable()
                             ->preload()
                             ->nullable(),
+                        
                         Textarea::make('description')
                             ->maxLength(65535)
                             ->columnSpanFull(),
+                        
                         Select::make('status')
                             ->options([
                                 'todo' => 'To Do',
@@ -55,6 +77,7 @@ class TaskResource extends Resource
                             ])
                             ->default('todo')
                             ->required(),
+                        
                         TextInput::make('hours_estimated')
                             ->numeric()
                             ->suffix('hours')
@@ -136,10 +159,5 @@ class TaskResource extends Resource
         ];
     }
 
-//     protected function afterCreate($record): void
-// {
-//     if ($record->assignee_id) {
-//         broadcast(new \App\Events\TaskAssigned($record));
-//     }
-// }
+
 }
