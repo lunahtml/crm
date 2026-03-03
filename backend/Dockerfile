@@ -1,6 +1,6 @@
 FROM php:8.4-fpm
 
-# Устанавливаем зависимости (разделим на части для надежности)
+# Устанавливаем зависимости
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -24,6 +24,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+# Копируем composer.json (ВАЖНО: сначала composer, потом все остальное)
+COPY composer.json composer.lock* ./
+
+# Устанавливаем PHP зависимости (vendor)
+RUN composer install --no-scripts --no-autoloader --ignore-platform-req=php --ignore-platform-req=ext-intl
+
 # Копируем package.json
 COPY package*.json ./
 RUN npm install
@@ -34,11 +40,11 @@ COPY . .
 # Собираем фронтенд
 RUN npm run build
 
-# Копируем composer.json
-COPY composer.json composer.lock* ./
-RUN composer install --no-scripts --no-autoloader --ignore-platform-req=php --ignore-platform-req=ext-intl
+# Генерируем автозагрузку
 RUN composer dump-autoload --optimize --ignore-platform-req=php --ignore-platform-req=ext-intl
 
+# Права
 RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 755 storage bootstrap/cache
 
 CMD ["php-fpm"]

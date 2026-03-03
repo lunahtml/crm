@@ -184,7 +184,10 @@ crm/
       ├────deploy.yml 
 
 
-php artisan reverb:start
+http://46.173.25.88:8001
+
+docker system prune -a -f --volumes
+df -h
 
 docker exec -it crm_backend php artisan optimize:clear
 docker-compose logs -f reverb
