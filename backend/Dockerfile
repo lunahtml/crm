@@ -12,27 +12,36 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libpq-dev \
+    nodejs \
+    npm \
     && docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd intl zip
 
 # Устанавливаем Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Устанавливаем рабочию директорию
+# Устанавливаем рабочую директорию
 WORKDIR /var/www/html
 
-# Копируем composer.json и composer.lock (если есть)
-COPY composer.json composer.lock* ./
+# Копируем package.json и package-lock.json (если есть)
+COPY package*.json ./
 
-# Устанавливаем зависимости включая pusher
-RUN composer install --no-scripts --no-autoloader --ignore-platform-req=php --ignore-platform-req=ext-intl
+# Устанавливаем npm зависимости
+RUN npm install
 
 # Копируем остальной код
 COPY . .
 
-# Завершаем установку и оптимизацию
+# Собираем фронтенд
+RUN npm run build
+
+# Копируем composer.json
+COPY composer.json composer.lock* ./
+
+# Устанавливаем PHP зависимости
+RUN composer install --no-scripts --no-autoloader --ignore-platform-req=php --ignore-platform-req=ext-intl
 RUN composer dump-autoload --optimize --ignore-platform-req=php --ignore-platform-req=ext-intl
 
-# Пользователь
+# Права
 RUN chown -R www-data:www-data /var/www/html
 
 CMD ["php-fpm"]
