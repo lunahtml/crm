@@ -40,7 +40,7 @@ select option:checked {
 }
     </style>
 
-    <div class="space-y-6" x-data="kanbanBoard()" x-init="init($wire)">
+<div class="space-y-6" x-data="kanbanBoard" x-init="init()">
         <!-- Header с выбором проекта -->
         <div class="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm">
             <div class="flex items-center gap-4">
@@ -266,7 +266,7 @@ select option:checked {
         @endif
     </div>
 
-    <script>
+    <!-- <script>
         window.kanbanBoard = function() {
             return {
                 draggedTaskId: null,
@@ -297,5 +297,39 @@ select option:checked {
                 }
             }
         }
-    </script>
+    </script> -->
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('kanbanBoard', () => ({
+            draggedTaskId: null,
+            
+            init() {
+                this.$wire = this.$wire || window.Livewire.find(this.$el.closest('[wire:id]').getAttribute('wire:id'));
+                console.log('Kanban initialized');
+            },
+            
+            handleDragStart(event, taskId) {
+                this.draggedTaskId = taskId;
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', taskId);
+                console.log('Drag started:', taskId);
+            },
+            
+            handleDrop(event, newStatus) {
+                event.preventDefault();
+                if (this.draggedTaskId) {
+                    console.log('Drop:', this.draggedTaskId, 'to', newStatus);
+                    if (this.$wire) {
+                        this.$wire.updateTaskStatus(this.draggedTaskId, newStatus);
+                    }
+                    this.draggedTaskId = null;
+                }
+            },
+            
+            openTask(taskId) {
+                window.location.href = `/admin/tasks/${taskId}/edit`;
+            }
+        }));
+    });
+</script>
 </x-filament-panels::page>

@@ -44,7 +44,6 @@ crm/
 │           ├── Pages/
 │              ├── KanbanBoard.php
 │           ├── Widgets/
-│               ├── ProjectKanban.php
 │               ├── ProjectStats.php
 │               ├── NotificationBell.php
 │               ├── TasksChart.php
@@ -142,7 +141,6 @@ crm/
 │                 ├── notification-script.blade.php
 │              ├── widgets
 │                 ├── notification-bell.blade.php
-│                 ├── project-kanban.blade.php
 │           ├── vendor
 │               ├── filament
 │                   ├── components
@@ -259,7 +257,7 @@ php artisan make:filament-widget TasksChart --chart --panel=admin
 php artisan make:filament-widget HoursPerProject --chart --panel=admin
 php artisan make:filament-widget RecentTasks --table --panel=admin
 
-TO DO 2️⃣ Канбан доска (перетаскивание задач) — для удобства
+TO DO 2️⃣ Канбан доска Альпин не вызывает глобально функцию отвалились уведомления
 
 3️⃣ Комментарии + теги — для битрикс-стайла
    INFO  Make sure to register the widget in `ProjectStatsResource::getWidgets()`, and then again in `getHeaderWidgets()` or `getFooterWidgets()` of any `ProjectStatsResource` page.
